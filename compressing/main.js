@@ -7,7 +7,7 @@
  const cp = require("child_process");
  const { inherits } = require("util");
  
- let WinRARPath = "D:/Program Files/WinRAR/WinRAR.exe"
+ let WinRARPath = "D:/rar软件/WinRAR.exe"
  let pathName = "D:/workSpace/renameFile/data" //压缩文件路径
  let pathName_backup = "D:/workSpace/renameFile/data/Backup"  //解压过的文件存放路径
  let pathName_Pack = "D:/workSpace/renameFile/data/Pack"  //解压完成 修改文件名  后的文件
