@@ -10,13 +10,13 @@
  let WinRARPath = "D:/rar软件/WinRAR.exe"
  let pathName = "D:/workSpace/renameFile/data" //压缩文件路径
  let pathName_backup = "D:/workSpace/renameFile/data/Backup"  //解压过的文件存放路径
- let pathName_Pack = "D:/workSpace/renameFile/data/Pack"  //解压完成 修改文件名  后的文件
- let pathName_ZIP = "D:/workSpace/renameFile/data/Pack/PackZIP"  //最后压缩 所有文件的路径
+ let pathName_Pack = "D:/workSpace/renameFile/data/Packunzip"  //解压完成 修改文件名  后的文件
+ let pathName_ZIP = "D:/workSpace/renameFile/data/PackZIP"  //最后压缩 所有文件的路径
  
  
  function unZIP(winRarPath, zipFilePath, unZipFolder) {
      return new Promise(async (resolve, reject) => {
-         cp.execFile(winRarPath, ["x", "-inul", zipFilePath, unZipFolder], function (err, stdout, stderr) {
+         cp.execFile(winRarPath, ["x", "-inul","-ibck",  zipFilePath, unZipFolder], function (err, stdout, stderr) {
              if (err) {
                  reject(err)
              }
@@ -27,7 +27,7 @@
  
  function ZIP(winRarPath, zipFilePath, unZipFolder) {
      return new Promise(async (resolve, reject) => {
-         cp.execFile(winRarPath, ["a", "-inul", zipFilePath, unZipFolder], function (err, stdout, stderr) {
+         cp.execFile(winRarPath, ["a", "-inul","-ibck", "-ep1" , zipFilePath, unZipFolder], function (err, stdout, stderr) {
              if (err) {
                  reject(err)
              }
