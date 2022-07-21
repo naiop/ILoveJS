@@ -3,7 +3,7 @@ const expressJSDocSwagger = require('express-jsdoc-swagger');
 const options = {
   info: {
     version: '1.0.0',
-    title: 'v-tools-server接口文档',
+    title: 'express+swagger+mssql API接口文档',
     description:
       '详情接口数据'
   },
