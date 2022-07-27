@@ -15,3 +15,6 @@ javascript 学习；  node js学习 ； es6语法学习   Demo
 
  ### Step >>>
  python 刷步数
+
+ ### ftp >>>
+  nodejs ftp 功能
