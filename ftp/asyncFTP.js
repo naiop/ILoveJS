@@ -41,10 +41,7 @@ exports.AsyncFtp = class{
     putFile(file,dest){
         let _this = this;
         return new Promise(function(resolve,reject){
-            //console.log("put");
-
-			//console.log("----put file----");
-			//try{
+			try{
 				_this._ftp.put(file, dest, function (err) {
 					if (err) {
 						reject({result:false,data:JSON.stringify(err)});
@@ -52,9 +49,9 @@ exports.AsyncFtp = class{
 						resolve({result:true,data:err});
 					}
 				});
-			//}catch(e){
-			//	console.log(e);
-			//}
+			}catch(e){
+				console.log(e);
+			}
         });
     }
 
