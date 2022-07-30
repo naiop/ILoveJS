@@ -1,7 +1,7 @@
 const arrRoutes = [
     {
-      path: '/api/GetAllUser',
-      component: './controller/AdminDB/user'
+      path: '/vue-admin-template/',
+      component: './controller/vue-admin-template/user'
     }
   ];
 

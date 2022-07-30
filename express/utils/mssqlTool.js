@@ -1,7 +1,8 @@
 const sql = require("mssql"); // 调用 SQL server模块
+var myres = require('./responseMsg')
 // 创建连接
 var dbConfig = {
-  server: " ",
+  server: "47.103.68.175",
   database: "Admin",
   user: "sa",
   password: "Zkjz@123",
@@ -16,29 +17,37 @@ var dbConfig = {
     trustServerCertificate: true,
   },
 };
+
 function executeSQL(sqls) {
-  return new Promise((resolve, reject) => {
-    var conn = new sql.ConnectionPool(dbConfig);
-    var req = new sql.Request(conn);
-    conn.connect(function (err) {
-      if (err) {
-        console.log(err);
-        resolve([err]);
-        // return;
+
+    return new Promise((resolve, reject) => {
+      try {
+  
+        var conn = new sql.ConnectionPool(dbConfig);
+        var req = new sql.Request(conn);
+        conn.connect(function (err) {
+          if (err) {
+            resolve([err])
+            return
+          }
+          req.query(sqls, function (err, recordset) {
+            if (recordset == undefined || recordset == null) {
+              throw "abnormal";
+            }
+            conn.close();
+            resolve([err, recordset])
+          })
+        })
+  
+  
+      } catch (error) {
+        myres.response.message = error
+        return resolve([error, myres.response])
       }
-      req.query(sqls, function (err, recordset) {
-        // if (err) {
-        //     console.log(err);
-        //     return;
-        // }
-        // else {
-        //     console.log(recordset);
-        // }
-        conn.close();
-        resolve([err, recordset]);
-      });
+  
     });
-  });
+
+
 }
 
 

@@ -1,4 +1,4 @@
-const expressJSDocSwagger = require('express-jsdoc-swagger');
+﻿const expressJSDocSwagger = require('express-jsdoc-swagger');
 
 const options = {
   info: {
@@ -13,7 +13,7 @@ const options = {
       scheme: 'basic'
     }
   },
-  filesPattern: ['../controller/**/*.js'], // Glob pattern to find your jsdoc files
+  filesPattern: ['../controller/**/*.js'], // Glob pattern to find your jsdoc files  https://www.npmjs.com/package/express-jsdoc-swagger
   swaggerUIPath: '/api-docs', // SwaggerUI will be render in this url. Default: '/api-docs'
   baseDir: __dirname
 };
