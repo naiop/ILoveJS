@@ -9,11 +9,22 @@ const _authorize = new authorize()
 /**
 * get /vue-admin-template/user/GetUser  
 * @summary 获取所有用户信息
+* @security BasicAuth
 * @tags User Management
 * @description 获取所有用户 
 */
 app.get('/user/GetUser', (req, res) => {
-  GetUser().then((result)=>{res.send(result)})
+
+  try {
+    if (_authorize.decrypt(req.headers.authorization)) {
+      GetUser().then((result)=>{res.send(result)})
+    }else{
+      res.send( _ResponseMessage.Fail(null,null,null,'error authorization' ))
+    }
+  } catch (error) {
+    res.send( _ResponseMessage.Fail(null,null,null,error.message ))
+  }
+
 })
 //-----------------登录 权限--------------------------
 
@@ -31,22 +42,17 @@ app.post('/user/login', (req, res) => {
 /**
 * get /vue-admin-template/user/info  
 * @summary 获取当前用户信息
-* @security BasicAuth
 * @tags User Management
 * @description token 获取用户信息
 * @param {string}  token.query.required  -  token 
 */
 app.get('/user/info', (req, res) => {
   try {
-    if (_authorize.decrypt(req.headers.authorization)) {
-      getInfo(req).then(result=>{
-        res.send( result )
-      }).catch(err=>{
-        res.send( _ResponseMessage.Fail(null,null,null,err.message ))
-      })
-    }else{
-      res.send( _ResponseMessage.Fail(null,null,null,'error authorization' ))
-    }
+    getInfo(req).then(result=>{
+      res.send( result )
+    }).catch(err=>{
+      res.send( _ResponseMessage.Fail(null,null,null,err.message ))
+    })
   } catch (error) {
     res.send( _ResponseMessage.Fail(null,null,null,error.message ))
   }
