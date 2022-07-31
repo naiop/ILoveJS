@@ -1,8 +1,7 @@
 const sql = require("mssql"); // 调用 SQL server模块
-var myres = require('./responseMsg')
 // 创建连接
 var dbConfig = {
-  server: "47.103.68.175",
+  server: "",
   database: "Admin",
   user: "sa",
   password: "Zkjz@123",
@@ -41,8 +40,7 @@ function executeSQL(sqls) {
   
   
       } catch (error) {
-        myres.response.message = error
-        return resolve([error, myres.response])
+        return resolve([error])
       }
   
     });

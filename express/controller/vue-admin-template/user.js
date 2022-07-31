@@ -1,6 +1,10 @@
 var app = require('express')();
 var sqlConnect = require('../../utils/mssqlTool.js')
-var myres = require('../../utils/responseMsg')
+var { ResponseMessage } = require('../../utils/ResponseMessage')
+const { authorize, base64 } = require('../../utils/Authorize');
+const _ResponseMessage = new ResponseMessage()
+const _authorize = new authorize()
+
 
 /**
 * get /vue-admin-template/user/GetUser  
@@ -21,18 +25,32 @@ app.get('/user/GetUser', (req, res) => {
 * @param {string}  request.body.required  -  账号   密码    
 */
 app.post('/user/login', (req, res) => {
-  login(req).then(result=>{res.send(result)}).catch(err=>{res.send(err)})
+  login(req).then(result=>{res.send(result)}).catch(err=>{res.send( _ResponseMessage.Fail(null,null,null,err.message ))})
 })
 
 /**
 * get /vue-admin-template/user/info  
 * @summary 获取当前用户信息
+* @security BasicAuth
 * @tags User Management
 * @description token 获取用户信息
 * @param {string}  token.query.required  -  token 
 */
 app.get('/user/info', (req, res) => {
-  getInfo(req).then(result=>{res.send(result)}).catch(err=>{res.send(err)})
+  try {
+    if (_authorize.decrypt(req.headers.authorization)) {
+      getInfo(req).then(result=>{
+        res.send( result )
+      }).catch(err=>{
+        res.send( _ResponseMessage.Fail(null,null,null,err.message ))
+      })
+    }else{
+      res.send( _ResponseMessage.Fail(null,null,null,'error authorization' ))
+    }
+  } catch (error) {
+    res.send( _ResponseMessage.Fail(null,null,null,error.message ))
+  }
+  
 })
 
 /**
@@ -42,9 +60,7 @@ app.get('/user/info', (req, res) => {
 * @description vue-admin登出
 */
 app.post('/user/logout', (req, res) => {
-  myres.response.code = 20000
-  myres.response.data = 'success'
-  res.send(myres.response)
+  res.send(_ResponseMessage.Success(20000, 'success' ))
 })
 //----------------------------------------------------
 
@@ -59,26 +75,23 @@ async function getInfo(req) {
       throw err;
     }
     else {
-      myres.response.code = 20000
+
       let userinfo = recordset.recordsets[0][0]
-      myres.response.data = {
-        roles: userinfo.roles.split(','),
-        introduction: userinfo.introduction,
-        avatar: userinfo.avatar,
-        name: userinfo.name
-      }
       // myres.response.data = {
       //   roles: ['admin'],
       //   introduction: 'I am a super administrator',
       //   avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
       //   name: 'Super Admin'
       // }
-      return myres.response
+      return  _ResponseMessage.Success(20000, {
+        roles: userinfo.roles.split(','),
+        introduction: userinfo.introduction,
+        avatar: userinfo.avatar,
+        name: userinfo.name
+      })
     }
   } catch (error) {
-    myres.response.message = error.message
-    myres.response.data = null
-    return myres.response
+    return _ResponseMessage.Fail(null,null,null,error.message )
   }
 }
 
@@ -97,13 +110,10 @@ async function login(req) {
     }
     else {
       let token = recordset.recordsets[0]
-      myres.response.code = 20000
-      myres.response.data = {token: token[0].Token}
-      return  myres.response
+      return _ResponseMessage.Success(20000, {token: token[0].Token})
     }
   } catch (error) {
-    myres.response.message = error.message
-    myres.response.data = null
+    return _ResponseMessage.Fail(null,null,null,error.message )
   }
 }
 
@@ -115,15 +125,10 @@ async function GetUser() {
       throw err;
     }
     else {
-      let dataItem = { items: [], total: 0 }
-      dataItem.items = recordset.recordsets[0]
-      dataItem.total = recordset.recordsets[0].length
-      myres.response.data = dataItem
-      return myres.response
+      return _ResponseMessage.Success(null, {items: recordset.recordsets[0] , total: recordset.recordsets[0].length })
     }
   } catch (error) {
-    myres.response.message = error.message
-    myres.response.data = null
+    return _ResponseMessage.Fail(null,null,null,error.message )
   }
 }
 
