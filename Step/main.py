@@ -1,3 +1,4 @@
+import sys
 import requests
 import time
 import re
@@ -35,7 +36,7 @@ def login(user, password):
     }
 
     r1 = requests.post(url1, data=data1, headers=headers, allow_redirects=False)
-    print(r1.text)
+    #print(r1.text)
     location = r1.headers["Location"]
 
     # print(location)
@@ -48,9 +49,9 @@ def login(user, password):
 
         return 0, 0
 
-    print("access_code获取成功！")
+    #print("access_code获取成功！")
 
-    print(code)
+    #print(code)
 
     url2 = "https://account.huami.com/v2/client/login"
 
@@ -78,20 +79,20 @@ def login(user, password):
 
     login_token = r2["token_info"]["login_token"]
 
-    print("login_token获取成功！")
+    #print("login_token获取成功！")
 
-    print(login_token)
+    #print(login_token)
 
     userid = r2["token_info"]["user_id"]
 
-    print("userid获取成功！")
+    #print("userid获取成功！")
 
-    print(userid)
+    #print(userid)
 
     return login_token, userid
 
-# 主函数
-def main():
+# 主函数 
+def main(user,password):
 
     login_token = 0
 
@@ -134,15 +135,10 @@ def main():
 
     response = requests.post(url, data=data, headers=head).json()
 
-    print(response)
+    #print(response)
 
-    result = f"改变步数为 {step}  状态: " + response['message']
+    result = f"Change steps:{step} State:" + response['message']
 
-    #mail_send(result)
-
-    server_send(result)
-
-    qmsg_send(result)
 
     print(result)
 
@@ -168,103 +164,19 @@ def get_app_token(login_token):
 
     app_token = response['token_info']['app_token']
 
-    print("app_token获取成功！")
+    #print("app_token获取成功！")
 
-    print(app_token)
+    #print(app_token)
 
     return app_token
 
-# server酱微信推送
-def server_send(msg):
 
-    if sckey == '':
 
-        return
 
-    server_url = "https://sc.ftqq.com/" + str(sckey) + ".send"
+# --------配置----------------------
 
-    data = {
+step = str(randint(66666, 88888))  # 范围内取随机数， 前面不但能大于后面的数
 
-        'text': msg,
-
-        'desp': msg
-
-    }
-
-    requests.post(server_url, data=data)
-
-def mail_send(msg):
-    #网络获取时间，服务器本地日期不准确
-    head = {'User-Agent': 'Mozilla/5.0'}
-    url = r'http://time1909.beijing-time.org/time.asp'
-    r = requests.get(url=url, headers=head)
-    if r.status_code == 200:
-        # 得到返回报文信息
-        result = r.text
-        print('r.text:', r.text)
-        # 通过;分割文本；
-        data = result.split(";")
-
-        # print('data:',data)
-        # ======================================================
-        # 以下是数据文本处理：切割；
-        year = data[1].split('=')[1]    # year=2021
-        month = data[2].split('=')[1]
-        day = data[3].split('=')[1]
-        # wday = data[4].split('=')[1]
-        hrs = data[5].split('=')[1]
-        minute = data[6].split('=')[1]
-        sec = data[7].split('=')[1]
-        # ======================================================
-        timestr = "%s/%s/%s %s:%s:%s" % (year,
-                                         month, day, hrs, minute, sec)
-     # 发送mail
-    mailurl = "http://47.103.68.175:8888/admin/mail/InsertMailSendList"
-    data_mailjson = {
-        "id": 1,
-        "appId": "Setp",
-        "contentType": "HTML",
-        "subject": "python执行Setp Number",
-        "recipients": "",
-        "cc": "",
-        "bcc": "",
-        "content": f"{timestr},{msg}账号：{user}",
-        "createTime": f"{timestr}",
-        "sendTime": ""
-    }
-    r = requests.post(mailurl, data=data_mailjson)
-    print(r)
-
-# Qmsg酱QQ推送
-def qmsg_send(msg):
-
-    if qkey == '':
-
-        return
-
-    qmsg_url = "https://qmsg.zendee.cn:443/send/" + str(qkey)
-
-    data = {
-
-        'qq': f'{qq}',
-
-        'msg': msg
-
-    }
-
-    requests.post(qmsg_url, data=data)
-
-# -- 配置 --
-# ------------------------------
-
-user = ""  # 小米运动账号
-password = ""  # 密码
-step = str(randint(66666, 99999))  # 范围内取随机数， 前面不但能大于后面的数
-
-# 以下为信息推送，不懂的可不填写不影响刷步
-sckey = ''  # server酱微信推送key(不懂不要填，可空)
-qkey = ''  # Qmsg酱QQ推送key(不懂不要填，可空)
-qq = ''  # 需要推送的qq号 (不懂不要填，可空)
 # ------------------------------
 
 
@@ -275,5 +187,5 @@ def main_handler(event, context):
 
 if __name__ == '__main__':
 
-    main()
+    main(sys.argv[1], sys.argv[2])
     

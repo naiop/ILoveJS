@@ -5,7 +5,11 @@ const arrRoutes = [
     },
     {
       path: '/vue-admin-template/',
-      component: './controller/vue-admin-template/other'
+      component: './controller/vue-admin-template/bianImg'
+    },
+    {
+      path: '/vue-admin-template/',
+      component: './controller/vue-admin-template/stepscript'
     }
   ];
 
