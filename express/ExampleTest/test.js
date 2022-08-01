@@ -1,51 +1,74 @@
+// 定时 进程 任务
 const schedule = require('node-schedule');
 const Queue = require('../utils/queue');
+const child_process = require('child_process');
+
+var taskQueue = new Queue();
+var currentList = new Map();
+var i =0
 
 
-exports.CustomerConfig = class {
-    constructor() {
-      this.enable = false;//是否使用
-      this.taskJs = "";//执行的js脚本
-    }
-    initBySqlObject(object) {
-      this.enabled = object.c_enable;
-      this.taskJs = object.c_taskjs;//执行的js脚本
-    }
-    check() {
-      return true;
-    }
-    testc(){
-      return true;
-    }
-  }
-
-let scheduleTask = () => {
-    schedule.scheduleJob('0 0 2,14 * * *',()=>{
-      console.log("start exec task!")
-      test();
-    });
-    //每月的5日1点1分30秒
-     schedule.scheduleJob('30 1 1 * * 1',()=>{
-        console.log("start exec task!")
-        test();
-     });
-  }
 
 let weekday = new Array(7);
-weekday[0] = "7";
 weekday[1] = "1";
 weekday[2] = "2";
 weekday[3] = "3";
 weekday[4] = "4";
 weekday[5] = "5";
 weekday[6] = "6";
+weekday[0] = "7";
 
-var taskQueue = new Queue();
-var currentList = new Map();
 
-function test(){
-
-    let task = new CustomerConfig();
-    task.initBySqlObject(result.data[i]);
-    taskQueue.enqueue(task);
+class CustomerConfig {
+  constructor() {
+    this.taskName = "";
+    this.enable = false;
+    this.taskJs = "";
+  }
+  initObject(object) {
+    this.taskName = object.taskName;
+    this.enable = object.enable;
+    this.taskJs = object.taskJs;
+  }
 }
+
+let scheduleTask = (task) => {
+  //每5秒
+  schedule.scheduleJob('0/5 * * * * ?', () => {
+    i =+ i + 1
+    console.log(`start exec task!${i}` )
+    console.log(`../ILoveJS/express/ExampleTest/${task.taskJs.endsWith(".js") ? task.taskJs : (task.taskJs + ".js")}`, [task.taskName]);
+    console.log("123");
+    //child_process
+    let worker = child_process.fork(`../ILoveJS/express/ExampleTest/${task.taskJs.endsWith(".js") ? task.taskJs : (task.taskJs + ".js")}`, [task.taskName]);
+    worker.on('message', (msg) => {
+		  try{
+      console.log(`message:${JSON.stringify(msg)}`);
+			currentStatus.get(msg.taskName).push(msg);
+		  }catch(error){
+        console.log(error);
+		  }
+      });
+      worker.on('close', (msg) => {
+        console.log(`closed:${task.taskName}`);
+        currentList.delete(task.taskName);
+        // endCallback();
+      });
+      currentList.set(task.taskName, worker);
+
+  });
+}
+
+
+
+(function test(){
+    let data={
+      taskName: '测试',
+      enable: true,
+      taskJs: "main.js"
+    }
+    let task = new CustomerConfig();
+    task.initObject(data);
+    taskQueue.enqueue(task);
+    scheduleTask(task)
+})()
