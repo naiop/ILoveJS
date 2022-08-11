@@ -8,7 +8,7 @@ const taskList ={ dir: [],file :[]}
 async function ftpDemo(value) {
     try {
         let ftpConfig = {  
-            host: "47.103.68.175",
+            host: " ",
             user: "test",
             password: "123456",
             port: 21
