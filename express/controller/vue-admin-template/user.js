@@ -68,6 +68,27 @@ app.get('/user/info', (req, res) => {
 app.post('/user/logout', (req, res) => {
   res.send(_ResponseMessage.Success(20000, 'success' ))
 })
+
+/**
+* post /vue-admin-template/user/register  
+* @summary 用户注册
+* @tags User Management
+* @param {string}  name.query.required  -  name 
+* @param {string}  username.query.required  -  username 
+* @param {string}  password.query.required  -  password 
+* @description vue-admin注册用户
+*/
+app.post('/user/register', (req, res) => {
+  try {
+    register(req).then(result=>{
+      res.send( result )
+    }).catch(err=>{
+      res.send( _ResponseMessage.Fail(null,null,null,err.message ))
+    })
+  } catch (error) {
+    res.send( _ResponseMessage.Fail(null,null,null,error.message ))
+  }
+})
 //----------------------------------------------------
 
 async function getInfo(req) {
@@ -131,7 +152,25 @@ async function GetUser() {
       throw err;
     }
     else {
-      return _ResponseMessage.Success(null, {items: recordset.recordsets[0] , total: recordset.recordsets[0].length })
+      return _ResponseMessage.Success(20000, {items: recordset.recordsets[0] , total: recordset.recordsets[0].length })
+    }
+  } catch (error) {
+    return _ResponseMessage.Fail(null,null,null,error.message )
+  }
+}
+
+async function register(req){
+  try {
+
+    let [err, str] = await sqlConnect.executestoredprocedure(req.query.name,req.query.username,req.query.password);
+    if (str == 20000) {
+      return _ResponseMessage.Success(20000, '注册成功', null,`注册成功, ${str}`) // 返回20000注册成功,0 失败
+    }
+    else if(err != undefined || err != null){
+      throw err;
+    }
+    else{
+      return _ResponseMessage.Success(20000, '注册成功', null,`注册失败, ${str}`) // 返回20000注册成功,0 失败
     }
   } catch (error) {
     return _ResponseMessage.Fail(null,null,null,error.message )
