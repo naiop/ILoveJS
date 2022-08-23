@@ -119,4 +119,43 @@ async function GetImgList(req, res) {
   }
 }
 
+
+
+//========================重定向demo 
+
+
+
+
+
+/**
+* get /vue-admin-template/api/bz  
+* @summary 获取bz
+* @tags Other Management
+* @description 获取背景图片
+*/
+app.get('/api/bz', (req, res) => {
+  try {
+
+    var options = {
+      method: 'GET',
+      url: 'https://tiebapic.baidu.com/forum/w%3D580%3B/sign=f88eb0f2cf82b9013dadc33b43b6ab77/562c11dfa9ec8a135455cc35b203918fa1ecc09c.jpg',
+      headers: {
+          'Referer': '',
+      }
+  };
+  // res.type('.html')
+  // res.type('html')
+  // res.header('Content-Type', 'text/html;charset=utf-8')
+  res.location('https://tiebapic.baidu.com/forum/w%3D580%3B/sign=f88eb0f2cf82b9013dadc33b43b6ab77/562c11dfa9ec8a135455cc35b203918fa1ecc09c.jpg');
+
+ res.redirect('https://tiebapic.baidu.com/forum/w%3D580%3B/sign=f88eb0f2cf82b9013dadc33b43b6ab77/562c11dfa9ec8a135455cc35b203918fa1ecc09c.jpg' )
+ request(options).pipe(res)
+      //GetImgList(req, res).then((result)=>{ res.send(_ResponseMessage.Success(null,result,null,null))})
+
+  } catch (error) {
+    res.send( _ResponseMessage.Fail(null,null,null,error.message ))
+  }
+
+})
+
 module.exports = app;
