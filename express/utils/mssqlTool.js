@@ -1,7 +1,7 @@
 const mssql = require("mssql"); // 调用 SQL server模块
 // 创建连接
 var dbConfig = {
-  server: "",
+server: "",
   database: "Admin",
   user: "sa",
   password: "Zkjz@123",

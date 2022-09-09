@@ -5,15 +5,23 @@
  const fs = require("fs")
  const path = require('path');
  const cp = require("child_process");
- const { inherits } = require("util");
+ const compressing = require('compressing');
+ const schedule = require('node-schedule'); // 
  
- let WinRARPath = "D:/rar软件/WinRAR.exe"
+ let WinRARPath = "D:/Program Files/WinRAR/WinRAR.exe"
  let pathName = "D:/workSpace/renameFile/data" //压缩文件路径
  let pathName_backup = "D:/workSpace/renameFile/data/Backup"  //解压过的文件存放路径
  let pathName_Pack = "D:/workSpace/renameFile/data/Packunzip"  //解压完成 修改文件名  后的文件
  let pathName_ZIP = "D:/workSpace/renameFile/data/PackZIP"  //最后压缩 所有文件的路径
  
  
+ /**
+  * 
+  * @param {*} winRarPath winRAR的路径 'D:/Program Files/WinRAR/WinRAR.exe'
+  * @param {*} zipFilePath 解压的压缩包 'D:/workSpace/renameFile/data/XJ88_F10255A-F0BCIXS001_AE03397_601878_2206020738_RT1.rar'
+  * @param {*} unZipFolder 解压的路径  'D:/workSpace/renameFile/data/Packunzip/RT1_2206020738'
+  * @returns 
+  */
  function unZIP(winRarPath, zipFilePath, unZipFolder) {
      return new Promise(async (resolve, reject) => {
          cp.execFile(winRarPath, ["x", "-inul","-ibck",  zipFilePath, unZipFolder], function (err, stdout, stderr) {
@@ -25,16 +33,41 @@
      })
  }
  
+ /**
+  * 
+  * @param {*} winRarPath  winRAR的路径
+  * @param {*} zipFilePath 压缩到那个路径  'D:/workSpace/renameFile/data/PackZIP\\4600016696_F10255A-F0BCIXS001_AE03397_EQC-R1_STR202205103701_SOM008220601878_SCDGY869VM6E8D3_XJ88_20220604164352_dlog'
+  * @param {*} unZipFolder 压缩的文件夹   'D:\\workSpace\\renameFile\\data\\Packunzip\\EQC-R1_2206020738\\LOG'
+  * @returns 
+  */
  function ZIP(winRarPath, zipFilePath, unZipFolder) {
      return new Promise(async (resolve, reject) => {
          cp.execFile(winRarPath, ["a", "-inul","-ibck", "-ep1" , zipFilePath, unZipFolder], function (err, stdout, stderr) {
              if (err) {
+                 throw new Error(err)
                  reject(err)
              }
              resolve(stdout)
          })
      })
  }
+
+ /**
+  * 
+  * @param {*} zipFilePath 压缩到那个路径  'D:/workSpace/renameFile/data/PackZIP\\4600016696_F10255A-F0BCIXS001_AE03397_EQC-R1_STR202205103701_SOM008220601878_SCDGY869VM6E8D3_XJ88_20220604164352_dlog'
+  * @param {*} unZipFolder 压缩的文件夹   'D:\\workSpace\\renameFile\\data\\Packunzip\\EQC-R1_2206020738\\LOG'
+  * @returns 
+  */
+ // 压缩成zip
+function compressingZIP(zipFilePath, unZipFolder) {
+  return new Promise(async (resolve, reject) => {
+    compressing.zip.compressDir(unZipFolder, zipFilePath+'.zip').then(() => { 
+      resolve('OK')
+    }).catch((err) => {
+      reject(err)
+     });
+  })
+}
  
  async function unZipToFolderList(){
    return await new Promise(async (resolve , reject) => {
@@ -42,12 +75,24 @@
        let zipPathList = []   //压缩文件集合
        let unzipPathBackcall = []   // 解压完后的文件集合
        let files = fs.readdirSync(pathName)
-       for (let i = 0; i < files.length; i++) {
-         const fileSuffix=path.extname(files[i])  //Suffix
-         if (fileSuffix === '.rar' || fileSuffix === '.zip') {
-           let path = pathName + '/' + files[i]
-           zipPathList.push(path)
-         }
+       let filesZipOrRAR = []
+       if (files.length === 0) {
+        console.log('文件夹解压完');
+        return 
+       }else{
+        for (let i = 0; i < files.length; i++) {
+          const fileSuffix=path.extname(files[i])  //Suffix
+          if (fileSuffix === '.rar' || fileSuffix === '.zip') {
+            filesZipOrRAR.push(pathName +"/"+ files[i])
+          }
+        }
+       }
+
+       if (filesZipOrRAR.length === 0) {
+        console.log('文件夹解压完');
+        return 
+       } else {
+        zipPathList.push(filesZipOrRAR[0])
        }
        
        for (let index = 0; index < zipPathList.length; index++) {
@@ -85,7 +130,8 @@
      const compressPath2 = compressPath1.substring(0, compressPath1.lastIndexOf("\\"))
  
      if (fs.existsSync(pathName_ZIP)) {
-      await ZIP(WinRARPath, pathName_ZIP + "\\" + compress,compressPath2);
+      //await ZIP(WinRARPath, pathName_ZIP + "\\" + compress,compressPath2);
+      await compressingZIP(pathName_ZIP + "\\" + element.name,compressPath2)
      }
  
    }
@@ -145,7 +191,37 @@
      console.log("打包文件中>>>")
      await modifyFile(rsp)
      console.log("打包压缩成功!")
+
+    // //测试解压  压缩
+
+    // //1 winRAR的路径
+    // //2 压缩到那个路径  
+    // //3 压缩的文件夹
+    //   try {
+    //     await unZIP(
+    //       'D:/Program Files/WinRAR/WinRAR.exe',
+    //       'D:/workSpace/renameFile/data/XJ88_F10255A-F0BCIXS001_AE03397_601878_2206020738_RT1.rar', 
+    //       'D:/workSpace/renameFile/data/Packunzip/RT1_2206020738');
+    //   } catch (error) {
+    //     console.log(error)
+    //   }
+    // //1 压缩到那个路径 后面加个。zip
+    // //2 压缩的文件夹  
+    // await compressingZIP(
+    //   'D:/workSpace/renameFile/data/PackZIP\\4600016696_F10255A-F0BCIXS001_AE03397_EQC-R1_STR202205103701_SOM008220601878_SCDGY869VM6E8D3_XJ88_20220604164352_dlog'+'.zip',
+    //   'D:\\workSpace\\renameFile\\data\\Packunzip\\EQC-R1_2206020738\\LOG')
  }
- main() 
+
+
+
+ let Task = () => {
+  //每分钟的第30秒定时执行一次:
+  schedule.scheduleJob('30 * * * * *', () => {
+    //console.log(new Date())
+    main() 
+ });
+
+}
+Task()
  
  
