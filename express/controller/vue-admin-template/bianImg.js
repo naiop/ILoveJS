@@ -138,7 +138,7 @@ app.get('/api/bz', (req, res) => {
 
     var options = {
       method: 'GET',
-      url: 'https://tiebapic.baidu.com/forum/w%3D580%3B/sign=f88eb0f2cf82b9013dadc33b43b6ab77/562c11dfa9ec8a135455cc35b203918fa1ecc09c.jpg',
+      url: 'http://p15.qhimg.com/bdm/1600_900_85/t01328b879e9dded66e.jpg',
       headers: {
           'Referer': '',
       }
@@ -146,9 +146,9 @@ app.get('/api/bz', (req, res) => {
   // res.type('.html')
   // res.type('html')
   // res.header('Content-Type', 'text/html;charset=utf-8')
-  res.location('https://tiebapic.baidu.com/forum/w%3D580%3B/sign=f88eb0f2cf82b9013dadc33b43b6ab77/562c11dfa9ec8a135455cc35b203918fa1ecc09c.jpg');
+  res.location('http://p15.qhimg.com/bdm/1600_900_85/t01328b879e9dded66e.jpg');
 
- res.redirect('https://tiebapic.baidu.com/forum/w%3D580%3B/sign=f88eb0f2cf82b9013dadc33b43b6ab77/562c11dfa9ec8a135455cc35b203918fa1ecc09c.jpg' )
+ res.redirect('http://p15.qhimg.com/bdm/1600_900_85/t01328b879e9dded66e.jpg' )
  request(options).pipe(res)
       //GetImgList(req, res).then((result)=>{ res.send(_ResponseMessage.Success(null,result,null,null))})
 

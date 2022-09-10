@@ -14,10 +14,9 @@ const _authorize = new authorize()
 * @description 获取所有用户 
 */
 app.get('/user/GetUser', (req, res) => {
-
   try {
     if (_authorize.decrypt(req.headers.authorization)) {
-      GetUser().then((result)=>{res.send(result)})
+      GetUser(req).then((result)=>{res.send(result)})
     }else{
       res.send( _ResponseMessage.Fail(null,null,null,'error authorization' ))
     }
@@ -144,15 +143,23 @@ async function login(req) {
   }
 }
 
-async function GetUser() {
+async function GetUser(req) {
   try {
-    let sql = `SELECT * FROM t_user`;
+    let sql = `SELECT TOP ${req.query.limit} * FROM t_user WHERE  id >
+    (
+        SELECT ISNULL(MAX(id),0) FROM
+        (
+            SELECT TOP ((${req.query.page}-1)*${req.query.limit}) id FROM t_user   ORDER BY id 
+        ) AS tempTable
+    ) 
+    ORDER BY id`;
     let [err, recordset] = await sqlConnect.executeSQL(sql);
+    let [err_total, recordset_total] = await sqlConnect.executeSQL(`SELECT Id FROM t_user`);
     if (err != undefined || err != null) {
       throw err;
     }
     else {
-      return _ResponseMessage.Success(20000, {items: recordset.recordsets[0] , total: recordset.recordsets[0].length })
+      return _ResponseMessage.Success(20000, {items: recordset.recordsets[0] , total: recordset_total.recordsets[0].length })
     }
   } catch (error) {
     return _ResponseMessage.Fail(null,null,null,error.message )
