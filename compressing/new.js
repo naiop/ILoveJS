@@ -38,46 +38,60 @@
           reject(err);
       }
       let finished = function(){
+        filesOperation(compression).then(() => {
           resolve(compressionFile);
-          // -------搬
-
-          let files = fs.readdirSync(path.join(pathName,compression));
-          if(!fs.existsSync(path.join(pathName_backup,compression)))
-             {
-               fs.mkdirSync(path.join(pathName_backup,compression));
-             }
-          
-          for (let index = 0; index < files.length; index++) {
-            let fileTruePath = path.join(pathName, compression,files[index]);
-            if (fs.existsSync(fileTruePath)) {
-              let stats = fs.statSync(fileTruePath)//异步返回文件信息
-              if (stats.isDirectory()) {
-                 //readDirAllFile(fileTruePath); //递归
-              } else if(stats.isFile()) {
-                  fs.rename((path.join(path.join(pathName,compression),files[index])),(path.join(pathName_backup,compression,files[index])) ,(err)=>{
-                    if(err){
-                      console.log(err)
-                    }else{
-                      if(index===files.length-1){
-                        fs.rmdirSync(path.join(pathName,compression));
-                        console.log('end--' + new Date());
-                      }
-                      //console.log('剪切到js文件夹内了')
-                      
-                    }
-                  })
-        
-              }
-            }
-          }
-
-          //----------
+        })
       }
       tarStream.on('error', handleError).on('end',finished).pipe(destStream);
 
   });
 }
 
+
+async function filesOperation(compression) {
+  return await new Promise(async (resolve, reject) => {
+    try {
+                // -------搬
+
+                let files = fs.readdirSync(path.join(pathName,compression));
+                if(!fs.existsSync(path.join(pathName_backup,compression)))
+                   {
+                     fs.mkdirSync(path.join(pathName_backup,compression));
+                   }
+                
+                for (let index = 0; index < files.length; index++) {
+                  let fileTruePath = path.join(pathName, compression,files[index]);
+                  if (fs.existsSync(fileTruePath)) {
+                    let stats = fs.statSync(fileTruePath)//异步返回文件信息
+                    if (stats.isDirectory()) {
+                       //readDirAllFile(fileTruePath); //递归
+                    } else if(stats.isFile()) {
+                        fs.rename((path.join(path.join(pathName,compression),files[index])),(path.join(pathName_backup,compression,files[index])) ,(err)=>{
+                          if(err){
+                            console.log(err)
+                          }else{
+                            if(index===files.length-1){
+                              fs.rmdirSync(path.join(pathName,compression));
+                              console.log('end--' + new Date());
+                            }
+                            //console.log('剪切到js文件夹内了')
+                            
+                          }
+                        })
+              
+                    }
+                  }
+                }
+      
+                //----------
+
+                resolve('Success')
+    } catch (error) {
+      reject(error)
+    }
+
+  })
+}
 
 
 function init(){
